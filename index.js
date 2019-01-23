@@ -56,6 +56,15 @@ app.post('/login', (req, res, next) => {
     })(req, res, next)
 })
 
+app.get('/authrequired', (req, res) => {
+    logger.info({message: 'inside authreq'});
+    if(req.isAuthenticated()) {
+        res.send('Yolo')
+    } else {
+        res.redirect('/')
+    }
+})
+
 app.listen(port, () => {
     console.log("listening on port 8080");
 })
