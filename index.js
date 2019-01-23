@@ -7,22 +7,13 @@ const express = require('express'),
     FileStore = require('session-file-store')(session),
     bodyParser = require('body-parser'),
     passport = require('passport'),
-    LocalStrategy = require('passport-local').Strategy,
     mongodb = require('mongodb');
 
 const port = process.env.PORT || 8080;
 
-passport.use(new LocalStrategy(
-    { usernameField: 'email' },
-    (email, password, done) => {
-        logger.info( {message: 'Local Strategy'});
-        const user = users[0]
-        if(email == user.email && password == user.password) {
-            logger.info({ message: 'localstrat retrun true' })
-            return done(null, user);
-        }
-    }
-))
+const users = require('./database/user')
+
+require('./config/passport')(passport)
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -36,25 +27,33 @@ app.use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: true
-}))
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/', (req, res) => {
-    logger.info({message: req.sessionID});
+    console.log({message: req.sessionID});
     res.send('Homepage')
 })
 
 app.get('/login', (req, res) => {
     logger.info({ id: req.sessionID })
-    passport.authenticate('local', (err, user, info) => {
-        logger.info({ message: 'in login in POST' });
-        req.login(user, (err) => {
-            logger.info({ passport: `${JSON.stringify(req.session.passport )}`})
-        })
-    })
+    
 })
 
-app.post('/login', (req, res) => {
-    logger.info({ id: req.body })
+app.post('/login', (req, res, next) => {
+    logger.info({ message: `${JSON.stringify(req.body)}`});
+    passport.authenticate('local-login', (err, user, info) => {
+        logger.info({ message: 'in login in POST' });
+        req.login(user, (err) => {
+            if(err) {
+                logger.info({message: err})
+                return res.send("hell no")
+            }
+            logger.info({ passport: `${JSON.stringify(req.session.passport )}`})
+            return res.send('Authenticated')
+        })
+    })(req, res, next)
 })
 
 app.listen(port, () => {

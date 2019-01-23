@@ -5,7 +5,8 @@ var options = {
         level: 'debug',
         handleExceptions: true,
         json: false,
-        colorize: true
+        colorize: true,
+        format: winston.format.simple()
     }
 };
 
@@ -25,10 +26,10 @@ logger.stream = {
     }
 }
 
-if (process.env.NODE_ENV !== 'production') {
+/*if (process.env.NODE_ENV !== 'production') {
     logger.add(new winston.transports.Console({
         format: winston.format.simple()
     }));
-}
+}*/
 
 module.exports = logger;
