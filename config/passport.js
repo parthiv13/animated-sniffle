@@ -29,5 +29,7 @@ module.exports = function(passport) {
                 logger.debug({message: 'return false'})
             }
         }
-    ))
+    ));
+
+    
 }

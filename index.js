@@ -7,11 +7,13 @@ const express = require('express'),
     FileStore = require('session-file-store')(session),
     bodyParser = require('body-parser'),
     passport = require('passport'),
-    mongodb = require('mongodb');
+    setupApi = require('./routes/setup'),
+    MongoClient = require('mongodb').MongoClient;
 
 const port = process.env.PORT || 8080;
 
-const users = require('./database/user')
+const users = require('./database/user'),
+url = require
 
 require('./config/passport')(passport)
 
@@ -30,6 +32,8 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use('/api', setupApi);
 
 app.get('/', (req, res) => {
     console.log({message: req.sessionID});
