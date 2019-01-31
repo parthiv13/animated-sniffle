@@ -1,33 +1,43 @@
 const express = require('express'),
     logger = require('../config/winston'),
+    bcrypt = require('bcrypt'),
     config = require('../config/database');
     dbName = "sendtodevice";
 var router = express.Router();
 
 const passport = require('passport'),
     MongoClient = require('mongodb').MongoClient;
-    client = new MongoClient(config.url, { useNewUrlParser: true });
 
 router.get('/signup', function(req, res) {
-    //logger.info({ message: `${JSON.stringify(req.body)}`});
-    logger.info({ message: config.url })
-    client.connect( (err, el) => {
-        if(err) {
-            logger.debug(err)
-            return res.send(err);
-        }
-        logger.info({ message: 'whaaaaaaaat?'});
-        //console.log(db)
-        const db = el.db('sendtodevice');
-        const col = db.collection('Test');
-
-        col.find({}).toArray((err, docs) => {
-            if(err) return res.send(err);
-            logger.info({ message: docs });
-            res.send(docs)
-            client.close();
+    logger.info({ message: `${JSON.stringify(req.query)}`});
+    bcrypt.hash(req.query.password, 8)
+        .then((hash) => {
+            MongoClient.connect(config.mongolocal, { useNewUrlParser: true })
+                .then(client => {
+                    client.db("sendtodevice").collection("Test").insertOne({ name: req.query.name, password: hash })
+                        .then(data => {
+                            console.log(data);
+                            res.send(data);
+                            client.close();
+                        }).catch(err => {
+                            console.log(err)
+                            res.send(err)
+                        });
+                }).catch(err => {
+                    console.log(err);
+                 res.send(err);
+                })
+        }).catch(err => {
+            console.log(err);
+            res.send(err);
         })
-    });
+    //logger.info({ message: config.mongolocal });
 });
+
+router.get('/login', (req, res) => {
+    passport.authenticate('local-login', (err, user, info) => {
+        
+    })
+})
 
 module.exports = router;
