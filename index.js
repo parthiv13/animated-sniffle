@@ -19,7 +19,7 @@ require('./config/passport')(passport)
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(morgan('combined', { "stream": logger.stream }));
+app.use(morgan('dev', { "stream": logger.stream }));
 app.use(session({
     genid: (req) => {
         logger.info(req.sessionID)
@@ -60,14 +60,14 @@ app.post('/login', (req, res, next) => {
     })(req, res, next)
 })
 
-app.get('/authrequired', (req, res) => {
+/*app.get('/authrequired', (req, res) => {
     logger.info({message: 'inside authreq'});
     if(req.isAuthenticated()) {
         res.send('Yolo')
     } else {
         res.redirect('/')
     }
-})
+})*/
 
 app.listen(port, () => {
     console.log("listening on port 8080");

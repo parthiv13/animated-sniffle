@@ -10,9 +10,10 @@ const passport = require('passport'),
 
 router.get('/signup', function(req, res) {
     //logger.info({ message: `${JSON.stringify(req.body)}`});
+    logger.info({ message: config.url })
     client.connect( (err, db) => {
         if(err) {
-            logger.debug({ message: "ok?"})
+            logger.debug(err)
             return res.send(err);
         }
         logger.info({ message: 'whaaaaaaaat?'});
