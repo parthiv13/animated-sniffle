@@ -17,9 +17,14 @@ url = require
 
 require('./config/passport')(passport)
 
+//bodyParser Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+//Logger Middleware
 app.use(morgan('dev', { "stream": logger.stream }));
+
+//Express Session Middleware
 app.use(session({
     genid: (req) => {
         logger.info(req.sessionID)
@@ -30,6 +35,8 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }));
+
+//Passport Middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
