@@ -7,17 +7,18 @@ const bcrypt = require('bcrypt');
 
 module.exports = function(passport) {
     passport.serializeUser((user, done) => {
-        console.log('inside serialise callback');
+        console.log(user);
+        //let id = user.username;
         logger.debug({message: `${JSON.stringify(user)}`});
-        done(null, user._id);
+        done(null, user);
     });
 
     passport.deserializeUser((id, done) => {
         logger.info({message: 'deserializing user'});
-        logger.debug({message: `${JSON.stringify(users[0])}`})
+        logger.debug({message: `${JSON.stringify(id)}`})
         MongoClient.connect(databaseURL, {useNewUrlParser: true})
         .then(client => {
-            client.db("sendtodevice").collection("test").findOne({ _id: id})
+            client.db("sendtodevice").collection("test").findOne({ name: id})
             .then(user => {
                 done(null, user);
             }).catch(err => {
@@ -28,15 +29,17 @@ module.exports = function(passport) {
 
     passport.use('local-login', new LocalStrategy(
         { passReqToCallback : true },
-        (req, name, password, done) => {
-            logger.info( {message: 'Local Strategy'});
-            logger.debug({message: `${JSON.stringify(users[0])}`})
+        (username, password, done) => {
+            logger.info({messe: 'Local Strategy'});
+            logger.debug({message: `${JSON.stringify(username)}`})
             const user = users[0];
             MongoClient.connect(databaseURL, {useNewUrlParser: true})
                 .then(client => {
-                    client.db("sendtodevice").collection("test").findOne({ name: req.query.uname })
+                    logger.info({message: 'Connected to Mongo'});
+                    client.db("sendtodevice").collection("test").findOne({ name: username })
                     .then(data => {
-                        bcrypt.compare(req.query.password, data[0].password)
+                        logger.info({ data: data[0]})
+                        bcrypt.compare(password, data[0].password)
                         .then(res => {
                             if(res) {
                                 logger.info({ message: "Logged in" });
@@ -47,11 +50,11 @@ module.exports = function(passport) {
                             }
                         }).catch(err => {
                             console.log(err);
-                            res.send(err);
+                            res.done(null, false, {message: `${JSON.stringify(err)}`});
                         }) 
                     }).catch(err => {
                         console.log(err);
-                        res.send(err);
+                        res.send("err");
                     })
                 })
         }

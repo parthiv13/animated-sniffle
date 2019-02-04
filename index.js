@@ -47,19 +47,19 @@ app.get('/', (req, res) => {
     res.send('Homepage')
 })
 
-app.get('/login', (req, res) => {
-    logger.info({ id: req.sessionID })
+app.post('/login', (req, res) => {
+    logger.info({ message: `${JSON.stringify(req.sessionID)}` })
     
 })
 
-app.post('/login', (req, res, next) => {
-    logger.info({ message: `${JSON.stringify(req.body)}`});
+app.get('/login', (req, res, next) => {
+    logger.info({ message: `${JSON.stringify(req.query)}`});
     passport.authenticate('local-login', (err, user, info) => {
         logger.info({ message: 'in login in POST' });
-        req.login(user, (err) => {
+        req.logIn(user, (err) => {
             if(err) {
-                logger.info({message: err})
-                return res.send("hell no")
+                logger.info({message: `req.query: ${JSON.stringify(user)}`})
+                return next(err)
             }
             logger.info({ passport: `${JSON.stringify(req.session.passport )}`})
             return res.send('Authenticated')

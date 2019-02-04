@@ -15,11 +15,21 @@ const logger = winston.createLogger({
     format: winston.format.json(),
     defaultMedia: { service: 'user-service' },
     transports: [
-        new winston.transports.Console(options.console)
+        new winston.transports.Console(options.console),
+        //At Production Level
+        new winston.transports.File({
+            filename: '../logs/error.log',
+            level: 'error'
+        })
     ],
     exitOnError: false
 });
 
+//At Production Level
+/*logger.exceptions.handle(
+    new transports.File({filename: '../logs/exceptions.log'})
+)
+*/
 logger.stream = {
     write: function(message, encoding) {
         logger.info(message);
